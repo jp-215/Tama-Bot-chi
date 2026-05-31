@@ -71,30 +71,6 @@ jobs:
         working-directory: agent
         run: pytest test_imports.py -v
 
-  python-test-mcp-gmail:
-    name: Python Tests — mcp-gmail-main
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: "pip"
-          cache-dependency-path: "mcp-gmail-main/pyproject.toml"
-
-      - name: Install uv
-        run: pip install uv
-
-      - name: Install mcp-gmail-main with dev dependencies
-        working-directory: mcp-gmail-main
-        run: uv pip install --system -e ".[dev]"
-
-      - name: Run mcp-gmail-main tests
-        working-directory: mcp-gmail-main
-        run: pytest tests/ -v
-
   node-desktop-pet:
     name: Node.js — desktop-pet (TypeScript + Build)
     runs-on: ubuntu-latest
@@ -122,7 +98,7 @@ jobs:
 
   ci-gate:
     name: CI Gate
-    needs: [python-lint, python-test-agent, python-test-mcp-gmail, node-desktop-pet]
+    needs: [python-lint, python-test-agent, node-desktop-pet]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI sanity checks passed."

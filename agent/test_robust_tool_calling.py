@@ -2,10 +2,8 @@
 Robust integration test for Claude tool calling.
 This actually verifies that Claude calls the tools and gets correct results.
 """
-import os
 import sys
 import logging
-import json
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -28,9 +26,9 @@ def test_robust_tool_calling():
 
         # Import test dependencies
         from test_agent_tools import MockMCPClient, MockiMessageTool, MockGmailTool
-        import tools.mcp_client
-        import tools.imessage_tool
-        import tools.gmail_tool
+        import tools.mcp_client  # noqa: F401
+        import tools.imessage_tool  # noqa: F401
+        import tools.gmail_tool  # noqa: F401
 
         # Replace with mocks
         original_mcp = tools.mcp_client.MCPClient
@@ -46,7 +44,7 @@ def test_robust_tool_calling():
 
         logger.info("\n1. Initialize agent")
         agent = TamaBotchiAgent(user_id='test_user')
-        logger.info(f"   ✓ Agent initialized")
+        logger.info("   ✓ Agent initialized")
 
         # Test 1: Verify tool was actually called and data is correct
         logger.info("\n2. Test calculate_match tool execution")

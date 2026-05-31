@@ -2,11 +2,9 @@
 Test suite for TamaBotchi agent tool calling with Claude API.
 This tests the agent's ability to use tools correctly.
 """
-import os
 import sys
 import logging
 from typing import Dict, Any
-import json
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -188,7 +186,7 @@ def test_permissions_system():
     logger.info("="*60)
 
     try:
-        from core.permissions import PermissionsManager, ActionType, PermissionLevel
+        from core.permissions import PermissionsManager, ActionType
 
         mock_mcp = MockMCPClient()
         pm = PermissionsManager(mock_mcp)
@@ -283,9 +281,9 @@ def test_agent_with_mocks():
         sys.modules['googleapiclient.errors'] = MagicMock()
 
         # Temporarily replace tools with mocks
-        import tools.mcp_client
-        import tools.imessage_tool
-        import tools.gmail_tool
+        import tools.mcp_client  # noqa: F401
+        import tools.imessage_tool  # noqa: F401
+        import tools.gmail_tool  # noqa: F401
 
         original_mcp = tools.mcp_client.MCPClient
         original_imessage = tools.imessage_tool.iMessageTool

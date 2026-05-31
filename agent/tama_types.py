@@ -3,7 +3,6 @@ Type definitions for TamaBotchi agent.
 All data structures used across the application.
 """
 from typing import TypedDict, List, Dict, Optional, Literal
-from datetime import datetime
 
 
 # User and Profile Types

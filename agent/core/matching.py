@@ -2,7 +2,6 @@
 Interest-based matching algorithm
 """
 from typing import Dict, List
-import json
 
 
 class MatchingEngine:

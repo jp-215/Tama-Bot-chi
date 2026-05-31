@@ -6,7 +6,7 @@ import json
 import os
 import time
 import logging
-from typing import Dict, List, Optional
+from typing import Dict
 from threading import Lock
 
 logger = logging.getLogger(__name__)

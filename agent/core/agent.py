@@ -10,7 +10,7 @@ from config import Config
 from tools.imessage_tool import iMessageTool
 from tools.mcp_client import MCPClient
 from core.matching import MatchingEngine
-from core.permissions import PermissionsManager, ActionType, PermissionLevel
+from core.permissions import PermissionsManager, ActionType
 
 logger = logging.getLogger(__name__)
 

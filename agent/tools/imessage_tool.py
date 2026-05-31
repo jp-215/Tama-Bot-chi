@@ -2,7 +2,7 @@
 iMessage Tool for sending messages via the bridge server.
 """
 import requests
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 import logging
 
 from config import Config
@@ -121,7 +121,7 @@ class iMessageTool:
         """
         if limit > 200:
             limit = 200
-            logger.warning(f"Message limit capped at 200")
+            logger.warning("Message limit capped at 200")
 
         try:
             response = requests.get(

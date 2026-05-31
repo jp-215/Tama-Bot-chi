@@ -12,7 +12,6 @@ from tama_types import (
     UserPreferences,
     ConversationMessage,
     MessageTemplate,
-    InteractionLog,
 )
 from exceptions import (
     MCPConnectionError,

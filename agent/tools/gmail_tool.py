@@ -18,7 +18,7 @@ import base64
 
 from config import Config
 from tama_types import EmailSendResponse, CalendarEventResponse, BusyTimeSlot
-from exceptions import GmailAuthError, GmailSendError, CalendarAuthError, CalendarEventError
+from exceptions import GmailAuthError, GmailSendError, CalendarEventError
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,6 @@
 Integration test for Claude tool calling and system prompt.
 This tests the actual agent with Claude API.
 """
-import os
 import sys
 import logging
 
@@ -27,9 +26,9 @@ def test_agent_tool_calling():
 
         # Import test dependencies
         from test_agent_tools import MockMCPClient, MockiMessageTool, MockGmailTool
-        import tools.mcp_client
-        import tools.imessage_tool
-        import tools.gmail_tool
+        import tools.mcp_client  # noqa: F401
+        import tools.imessage_tool  # noqa: F401
+        import tools.gmail_tool  # noqa: F401
 
         # Replace with mocks
         original_mcp = tools.mcp_client.MCPClient
