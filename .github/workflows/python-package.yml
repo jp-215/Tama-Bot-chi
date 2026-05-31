@@ -1,40 +1,128 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python package
+name: CI Sanity Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "feature/**"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
 
 jobs:
-  build:
-
+  python-lint:
+    name: Python Lint (all services)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12"]
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install linting tools
+        run: pip install flake8 ruff
+
+      - name: Lint agent/ (flake8 — syntax errors)
+        run: flake8 agent/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Lint agent/ (ruff)
+        run: ruff check agent/
+
+      - name: Lint imessage-server/ (flake8 — syntax errors)
+        run: flake8 imessage-server/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Lint imessage-server/ (ruff)
+        run: ruff check imessage-server/
+
+      - name: Lint mcp-server/ (flake8 — syntax errors)
+        run: flake8 mcp-server/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Lint mcp-server/ (ruff)
+        run: ruff check mcp-server/
+
+      - name: Install mcp-gmail-main dev dependencies
+        run: pip install uv && cd mcp-gmail-main && uv pip install --system -e ".[dev]"
+
+      - name: Lint mcp-gmail-main/ (ruff)
+        working-directory: mcp-gmail-main
+        run: ruff check mcp_gmail/
+
+  python-test-agent:
+    name: Python Tests — agent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: "agent/requirements.txt"
+
+      - name: Install agent dependencies
+        run: pip install -r agent/requirements.txt pytest
+
+      - name: Run import sanity tests
+        working-directory: agent
+        run: pytest test_imports.py -v
+
+  python-test-mcp-gmail:
+    name: Python Tests — mcp-gmail-main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: "mcp-gmail-main/pyproject.toml"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install mcp-gmail-main with dev dependencies
+        working-directory: mcp-gmail-main
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Run mcp-gmail-main tests
+        working-directory: mcp-gmail-main
+        run: pytest tests/ -v
+
+  node-desktop-pet:
+    name: Node.js — desktop-pet (TypeScript + Build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: "desktop-pet/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: desktop-pet
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: desktop-pet
+        run: npx tsc --noEmit
+
+      - name: Build web bundle (Vite — skips Electron packaging)
+        working-directory: desktop-pet
+        run: npx vite build
+
+  ci-gate:
+    name: CI Gate
+    needs: [python-lint, python-test-agent, python-test-mcp-gmail, node-desktop-pet]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All CI sanity checks passed."
