@@ -164,9 +164,6 @@ Remember: You represent {user_name}, so maintain their reputation and authentici
     ) -> Dict:
         """Autonomously reach out to a high-match person"""
 
-        # Get message templates
-        templates = self.mcp_client.get_message_templates('introduction')
-
         # Craft personalized message using Claude
         match_reason = self.matching_engine.get_match_reason(
             self.user_profile,

@@ -295,7 +295,7 @@ def test_agent_with_mocks():
 
         # Try to import agent
         try:
-            from core.agent import TamaBotchiAgent
+            from core.agent import TamaBotchiAgent  # noqa: F401
             logger.info("Agent module imported successfully with mocks")
             logger.info("SKIP: Full agent test requires Anthropic API key")
 

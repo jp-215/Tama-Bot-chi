@@ -14,12 +14,12 @@ import subprocess
 import json as _json
 import re
 
-logger = logging.getLogger(__name__)
-
 from config import Config
 from core.agent import TamaBotchiAgent
 from tools.mcp_client import MCPClient
 import conversation_store
+
+logger = logging.getLogger(__name__)
 
 def _strip_json_fences(text: str) -> str:
     """
@@ -102,8 +102,6 @@ def get_or_create_agent(user_id: str) -> TamaBotchiAgent:
 @app.get('/health', response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
-    mcp_client = MCPClient()
-
     # Check service health
     services = {
         'agent': True,
