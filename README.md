@@ -230,10 +230,7 @@ Tama-Bot-chi/
 │   ├── main.py               # FastAPI — profiles, preferences, history
 │   └── database.py           # SQLite via tama.db
 │
-├── mcp-gmail-main/           # Gmail MCP server integration
-├── nextjs-frontend/          # Next.js web frontend
-├── studio-sanity/            # Sanity CMS studio for content
-└── proximity-service/        # Proximity detection (mobile, in progress)
+└── mcp-gmail-main/           # Gmail MCP server integration
 ```
 
 ---

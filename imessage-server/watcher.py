@@ -18,11 +18,9 @@ import sqlite3
 import os
 import time
 import requests
-import json
 import logging
 import signal
 import sys
-from datetime import datetime
 from typing import Optional, Dict, List, Any
 
 # Configuration

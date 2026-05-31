@@ -3,7 +3,6 @@ TamaBotchi iMessage Bridge Server
 Runs on macOS to send/receive iMessages via AppleScript
 """
 import subprocess
-import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +11,7 @@ import os
 from datetime import datetime
 import sqlite3
 from threading import Lock
-from typing import Optional, List
+from typing import Optional
 
 
 @asynccontextmanager

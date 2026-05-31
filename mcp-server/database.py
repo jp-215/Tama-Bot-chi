@@ -5,7 +5,6 @@ Handles user preferences and interaction logs.
 import aiosqlite
 import json
 import logging
-from datetime import datetime
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 

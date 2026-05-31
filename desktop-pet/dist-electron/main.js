@@ -37,7 +37,7 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 let petWindow = null;
 let summaryWindow = null;
-let tray = null;
+let mouseDownWinPos = null;
 const PET_WIDTH = 220;
 const PET_HEIGHT = 380;
 const SUMMARY_WIDTH = 420;
@@ -57,6 +57,7 @@ function createPetWindow() {
         skipTaskbar: true,
         hasShadow: false,
         focusable: true,
+        show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -65,6 +66,12 @@ function createPetWindow() {
     });
     petWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     petWindow.setIgnoreMouseEvents(false);
+    petWindow.once('ready-to-show', () => {
+        petWindow?.show();
+    });
+    petWindow.webContents.once('did-fail-load', () => {
+        petWindow?.show();
+    });
     const isDev = !electron_1.app.isPackaged;
     if (isDev) {
         petWindow.loadURL('http://localhost:5173/#pet');
@@ -103,6 +110,12 @@ function createSummaryWindow() {
         },
     });
     summaryWindow.setVisibleOnAllWorkspaces(true);
+    summaryWindow.once('ready-to-show', () => {
+        summaryWindow?.show();
+    });
+    summaryWindow.webContents.once('did-fail-load', () => {
+        summaryWindow?.show();
+    });
     const isDev = !electron_1.app.isPackaged;
     if (isDev) {
         summaryWindow.loadURL('http://localhost:5173/#summary');
@@ -120,6 +133,31 @@ function closeSummaryWindow() {
         summaryWindow = null;
     }
 }
+function snapToNearestCorner() {
+    if (!petWindow)
+        return;
+    const { width, height } = electron_1.screen.getPrimaryDisplay().workAreaSize;
+    const [x, y] = petWindow.getPosition();
+    const centerX = x + PET_WIDTH / 2;
+    const centerY = y + PET_HEIGHT / 2;
+    const corners = [
+        { x: 0, y: 0 },
+        { x: width - PET_WIDTH, y: 0 },
+        { x: 0, y: height - PET_HEIGHT },
+        { x: width - PET_WIDTH, y: height - PET_HEIGHT },
+    ];
+    let nearest = corners[0];
+    let minDist = Infinity;
+    for (const corner of corners) {
+        const dist = Math.sqrt((centerX - (corner.x + PET_WIDTH / 2)) ** 2 +
+            (centerY - (corner.y + PET_HEIGHT / 2)) ** 2);
+        if (dist < minDist) {
+            minDist = dist;
+            nearest = corner;
+        }
+    }
+    petWindow.setPosition(nearest.x, nearest.y);
+}
 electron_1.app.whenReady().then(() => {
     createPetWindow();
     electron_1.ipcMain.on('open-summary', () => {
@@ -135,6 +173,24 @@ electron_1.app.whenReady().then(() => {
         else {
             createSummaryWindow();
         }
+    });
+    electron_1.ipcMain.on('mouse-down-on-pet', () => {
+        if (!petWindow)
+            return;
+        mouseDownWinPos = petWindow.getPosition();
+    });
+    electron_1.ipcMain.on('mouse-up-on-pet', () => {
+        if (!petWindow || !mouseDownWinPos)
+            return;
+        const [currentX, currentY] = petWindow.getPosition();
+        const [downX, downY] = mouseDownWinPos;
+        mouseDownWinPos = null;
+        const moved = Math.abs(currentX - downX) > 5 || Math.abs(currentY - downY) > 5;
+        if (!moved) {
+            petWindow.webContents.send('pet-clicked');
+            return;
+        }
+        snapToNearestCorner();
     });
 });
 electron_1.app.on('window-all-closed', () => {

@@ -12,7 +12,7 @@ class Config:
 
     # Anthropic
     ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-    CLAUDE_MODEL = os.getenv('CLAUDE_MODEL', 'claude-3-5-haiku-20241022')
+    CLAUDE_MODEL = os.getenv('CLAUDE_MODEL', 'claude-haiku-4-5-20251001')
 
     # iMessage Bridge
     IMESSAGE_SERVER_URL = os.getenv('IMESSAGE_SERVER_URL', 'http://localhost:5001')

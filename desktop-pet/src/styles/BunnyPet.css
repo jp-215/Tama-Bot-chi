@@ -1,96 +1,93 @@
 /* ============================================
-   BunnyPet.css - Fluffy bunny desktop pet styles
+   BunnyPet.css - Avocado desktop pet styles
    ============================================ */
 
 /* -- Container -------------------------------- */
-.bunny-container {
+.pet-container {
     position: relative;
-    width: 120px;
-    height: 140px;
-    cursor: pointer;
+    width: 144px;
+    height: 178px;
+    cursor: grab;
+    -webkit-app-region: drag;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: rgba(184, 228, 174, 0.88);
+    border-radius: 28px;
+    padding: 14px 12px 8px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 24px rgba(45, 106, 79, 0.22), 0 2px 8px rgba(45, 106, 79, 0.12);
 }
 
-.bunny-container:hover {
-    transform: scale(1.05);
+.pet-container:hover {
+    box-shadow: 0 8px 32px rgba(45, 106, 79, 0.28), 0 3px 12px rgba(45, 106, 79, 0.16);
 }
 
-.bunny-container:active {
-    transform: scale(0.95);
+/* -- Bounce on click -------------------------- */
+.pet-container--bounce {
+    animation: container-bounce 0.5s ease-in-out;
 }
 
-/* -- SVG Bunny -------------------------------- */
-.bunny-svg {
-    animation: bunny-breathe 3s ease-in-out infinite;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-    transition: filter 0.3s ease;
-}
-
-.bunny-svg:hover {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-}
-
-/* -- Bounce Animation ------------------------- */
-.bunny-svg--bounce {
-    animation: bunny-bounce 0.5s ease-in-out 3;
+/* -- SVG Pet ---------------------------------- */
+.pet-svg {
+    animation: pet-breathe 3s ease-in-out infinite;
+    filter: drop-shadow(0 2px 5px rgba(45, 106, 79, 0.18));
 }
 
 /* -- Excited State Animation ------------------ */
-.bunny-svg--excited {
-    animation: bunny-wiggle 0.6s ease-in-out infinite;
+.pet-svg--excited {
+    animation: pet-wiggle 0.6s ease-in-out infinite;
 }
 
 /* -- Shadow ----------------------------------- */
-.bunny-shadow {
-    width: 60px;
+.pet-shadow {
+    width: 64px;
     height: 10px;
-    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(45, 106, 79, 0.18) 0%, transparent 70%);
     border-radius: 50%;
-    margin-top: -8px;
+    margin-top: -6px;
     animation: shadow-pulse 3s ease-in-out infinite;
 }
 
 /* -- Speech Bubble ---------------------------- */
-.bunny-speech-bubble {
+.pet-speech-bubble {
     position: absolute;
-    top: -8px;
-    right: -30px;
+    top: -6px;
+    right: -34px;
     background: #ffffff;
-    border: 2px solid #e8ddd4;
+    border: 2px solid #b8dc7a;
     border-radius: 12px;
     padding: 4px 10px;
     font-size: 11px;
     font-weight: 600;
-    color: #ff6b81;
+    color: #2d6a4f;
     white-space: nowrap;
     animation: bubble-pop 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(45, 106, 79, 0.15);
     z-index: 10;
+    -webkit-app-region: no-drag;
 }
 
-.bunny-speech-bubble::after {
+.pet-speech-bubble::after {
     content: '';
     position: absolute;
     bottom: -6px;
-    left: 16px;
+    left: 14px;
     width: 0;
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 6px solid #ffffff;
-    filter: drop-shadow(0 1px 0 #e8ddd4);
+    filter: drop-shadow(0 1px 0 #b8dc7a);
 }
 
 /* -- Intro greeting variant ------------------- */
-.bunny-speech-bubble--intro {
-    color: #764ba2;
-    border-color: #c4a8e0;
+.pet-speech-bubble--intro {
+    color: #2d6a4f;
+    border-color: #7bc47a;
     font-size: 12px;
-    white-space: nowrap;
     animation: bubble-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
 }
 
@@ -98,81 +95,30 @@
    Keyframe Animations
    ============================================ */
 
-/* -- Gentle breathing idle animation ---------- */
-@keyframes bunny-breathe {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-3px);
-    }
+@keyframes pet-breathe {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
-/* -- Excited bounce when messages arrive ------ */
-@keyframes bunny-bounce {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    30% {
-        transform: translateY(-15px);
-    }
-
-    50% {
-        transform: translateY(-5px);
-    }
-
-    70% {
-        transform: translateY(-10px);
-    }
+@keyframes container-bounce {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-14px); }
+    55% { transform: translateY(-5px); }
+    75% { transform: translateY(-9px); }
 }
 
-/* -- Excited wiggle animation ----------------- */
-@keyframes bunny-wiggle {
-
-    0%,
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
-
-    25% {
-        transform: translateY(-4px) rotate(-3deg);
-    }
-
-    75% {
-        transform: translateY(-4px) rotate(3deg);
-    }
+@keyframes pet-wiggle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-4px) rotate(-3deg); }
+    75% { transform: translateY(-4px) rotate(3deg); }
 }
 
-/* -- Shadow pulse following breathing --------- */
 @keyframes shadow-pulse {
-
-    0%,
-    100% {
-        transform: scaleX(1);
-        opacity: 0.6;
-    }
-
-    50% {
-        transform: scaleX(0.9);
-        opacity: 0.4;
-    }
+    0%, 100% { transform: scaleX(1); opacity: 0.6; }
+    50% { transform: scaleX(0.88); opacity: 0.35; }
 }
 
-/* -- Speech bubble pop in --------------------- */
 @keyframes bubble-pop {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }

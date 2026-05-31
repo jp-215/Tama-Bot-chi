@@ -1,6 +1,7 @@
 """
 Core TamaBotchi AI Agent with Claude + LangChain
 """
+import anthropic
 from anthropic import Anthropic
 from typing import Dict, List, Optional
 import json
@@ -286,7 +287,16 @@ Write your reply. Output the reply text only - no analysis, no headers, no bulle
         if self.tools:
             create_kwargs["tools"] = self.tools
 
-        response = self.anthropic.messages.create(**create_kwargs)
+        try:
+            response = self.anthropic.messages.create(**create_kwargs)
+        except anthropic.AuthenticationError as e:
+            raise RuntimeError(f"Anthropic API key invalid or expired: {e}") from e
+        except anthropic.RateLimitError as e:
+            raise RuntimeError(f"Anthropic rate limit exceeded: {e}") from e
+        except anthropic.BadRequestError as e:
+            raise RuntimeError(f"Anthropic bad request (check CLAUDE_MODEL='{Config.CLAUDE_MODEL}'): {e}") from e
+        except anthropic.APIStatusError as e:
+            raise RuntimeError(f"Anthropic API error {e.status_code}: {e.message}") from e
 
         # Process tool uses
         while response.stop_reason == "tool_use":
@@ -328,7 +338,16 @@ Write your reply. Output the reply text only - no analysis, no headers, no bulle
             }
             if self.tools:
                 followup_kwargs["tools"] = self.tools
-            response = self.anthropic.messages.create(**followup_kwargs)
+            try:
+                response = self.anthropic.messages.create(**followup_kwargs)
+            except anthropic.AuthenticationError as e:
+                raise RuntimeError(f"Anthropic API key invalid or expired: {e}") from e
+            except anthropic.RateLimitError as e:
+                raise RuntimeError(f"Anthropic rate limit exceeded: {e}") from e
+            except anthropic.BadRequestError as e:
+                raise RuntimeError(f"Anthropic bad request (check CLAUDE_MODEL='{Config.CLAUDE_MODEL}'): {e}") from e
+            except anthropic.APIStatusError as e:
+                raise RuntimeError(f"Anthropic API error {e.status_code}: {e.message}") from e
 
         # Extract final text response
         final_response = ""

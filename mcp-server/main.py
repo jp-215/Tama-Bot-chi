@@ -11,7 +11,7 @@ Provides REST API for:
 """
 import logging
 from contextlib import asynccontextmanager
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +20,6 @@ from pydantic import BaseModel, Field
 from config import Config
 from database import db
 from cache import cache
-from sanity_client import sanity
 
 # Configure logging
 logging.basicConfig(
@@ -119,16 +118,12 @@ async def health_check():
         Health status with service availability
     """
     redis_connected = cache.is_connected()
-    sanity_available = True  # Sanity is stateless HTTP, assume available
-
-    all_healthy = redis_connected and sanity_available
 
     return {
-        "status": "healthy" if all_healthy else "degraded",
+        "status": "healthy" if redis_connected else "degraded",
         "services": {
             "redis": redis_connected,
-            "sanity": sanity_available,
-            "sqlite": True  # SQLite is always available if file system works
+            "sqlite": True,
         }
     }
 
@@ -137,51 +132,42 @@ async def health_check():
 @app.get("/profiles/{user_id}")
 async def get_user_profile(user_id: str):
     """
-    Get user profile from Sanity.
+    Get user profile.
+
+    Sanity.io integration has been deprecated. Returns a minimal default profile
+    so downstream callers always receive a valid 200 response.
 
     Args:
         user_id: User ID to fetch
 
     Returns:
-        User profile data
-
-    Raises:
-        HTTPException: 404 if user not found, 500 for server errors
+        User profile data (default stub when no CMS is configured)
     """
-    try:
-        profile = sanity.get_user_profile(user_id)
-
-        if not profile:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User profile not found: {user_id}"
-            )
-
-        return profile
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Sanity returns 404 when the document doesn't exist — surface that as a
-        # 404 so callers (like the agent) can gracefully fall back rather than
-        # treating it as a server error (500).
-        err_str = str(e)
-        if "404" in err_str or "Not Found" in err_str:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User profile not found in Sanity: {user_id}"
-            )
-        logger.error(f"Error fetching user profile {user_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch user profile: {str(e)}"
-        )
+    return {
+        "userId": user_id,
+        "name": user_id,
+        "email": None,
+        "phone": None,
+        "interests": [],
+        "industry": None,
+        "role": None,
+        "seniority": None,
+        "goals": [],
+        "bio": None,
+        "location": None,
+        "linkedinUrl": None,
+        "twitterHandle": None,
+        "availability": None,
+    }
 
 
 @app.patch("/profiles/{user_id}")
 async def update_user_profile(user_id: str, data: Dict[str, Any]):
     """
-    Update user profile in Sanity.
+    Update user profile.
+
+    Sanity.io integration has been deprecated. Profile updates are accepted and
+    acknowledged but not persisted to any backend.
 
     Args:
         user_id: User ID to update
@@ -189,32 +175,9 @@ async def update_user_profile(user_id: str, data: Dict[str, Any]):
 
     Returns:
         Success message
-
-    Raises:
-        HTTPException: 400 for validation errors, 500 for server errors
     """
-    try:
-        success = sanity.update_user_profile(user_id, data)
-
-        if not success:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update user profile"
-            )
-
-        return {"status": "success", "message": f"Updated profile for {user_id}"}
-
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        logger.error(f"Error updating user profile {user_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update user profile: {str(e)}"
-        )
+    logger.info("Profile update for %s received (Sanity deprecated, not persisted)", user_id)
+    return {"status": "success", "message": f"Updated profile for {user_id}"}
 
 
 # Conversation endpoints (Redis)
@@ -399,31 +362,17 @@ async def update_user_preferences(user_id: str, preferences: UserPreferencesUpda
 @app.get("/templates")
 async def get_message_templates(type: str = "introduction"):
     """
-    Get message templates from Sanity.
+    Get message templates.
+
+    Sanity.io integration has been deprecated. Returns an empty list.
 
     Args:
-        type: Type of template (introduction, follow_up, meeting_request, etc.)
+        type: Template type (unused)
 
     Returns:
-        List of message templates
-
-    Raises:
-        HTTPException: 500 for server errors
+        Empty template list
     """
-    try:
-        templates = sanity.get_message_templates(type)
-
-        return {
-            "templates": templates,
-            "count": len(templates)
-        }
-
-    except Exception as e:
-        logger.error(f"Error fetching templates of type {type}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch message templates: {str(e)}"
-        )
+    return {"templates": [], "count": 0}
 
 
 # Interaction Logs endpoints (SQLite)

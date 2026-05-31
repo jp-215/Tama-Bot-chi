@@ -466,7 +466,7 @@ app.calendars().forEach(function(cal) {{
     cal.events().forEach(function(evt) {{
       try {{
         var startDate = evt.startDate();
-        if (startDate >= now && startDate <= end) {{
+        if (startDate.getTime() >= now.getTime() && startDate.getTime() <= end.getTime()) {{
           result.push({{
             title: evt.summary(),
             start: startDate.toISOString(),
